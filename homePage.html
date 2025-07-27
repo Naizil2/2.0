@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title id="app-title">Classic News</title>
+  <!-- Link to the main stylesheet -->
+  <link rel="stylesheet" href="../css/homePage.css" />
+  <!-- Google Fonts for Inter font family -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Header section of the news website -->
+  <header class="header">
+    <div class="container header-flex">
+      <h1 id="app-header-name">Classic News</h1>
+      <div class="header-right-section">
+        <!-- Button to display current category and toggle the categories dropdown -->
+        <button id="current-category-button" class="current-category-button">
+          <span id="current-category-icon"></span>
+          <span id="current-category-text">Breaking News</span>
+          <!-- Dropdown arrow icon, rotates when dropdown is open -->
+          <span id="current-category-toggle" class="ml-2 transform transition-transform">&#9660;</span>
+        </button>
+        <!-- Categories dropdown list, initially hidden -->
+        <div class="header-categories-dropdown" id="header-categories-dropdown">
+          <!-- Container for dynamically inserted category tiles -->
+          <div class="categories-tiles header-categories" id="categories-tiles">
+            <!-- Category tiles will be dynamically inserted here by main.js -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Loader animation displayed while content is loading -->
+  <div id="loader">
+    <div class="spinner"></div>
+    <span>Loading...</span>
+  </div>
+
+  <!-- Main content area of the website -->
+  <main class="container">
+    <div class="search-and-weather-container">
+      <!-- Search bar for filtering news articles -->
+      <div class="search-bar">
+        <input type="text" id="news-search" placeholder="Search news..." />
+      </div>
+
+      <!-- Weather Widget -->
+      <div id="weather-widget" class="weather-widget">
+        <div class="weather-icon" id="weather-icon"></div>
+        <div class="weather-info">
+          <div class="weather-location" id="weather-location">Loading...</div>
+          <div class="weather-temperature" id="weather-temperature"></div>
+          <div class="weather-description" id="weather-description"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Featured news section (breaking news slider) -->
+    <section class="featured-news" id="breaking-news-slider">
+      <!-- Container for breaking news items, dynamically updated -->
+      <div class="breaking-news-content" id="breaking-news-content">
+        <!-- Breaking news item will be dynamically inserted here by main.js -->
+      </div>
+      <!-- Navigation arrows for the breaking news slider -->
+      <button class="breaking-arrow left" id="breaking-prev">&#8592;</button>
+      <button class="breaking-arrow right" id="breaking-next">&#8594;</button>
+      <!-- Indicators (dots) for the breaking news slider -->
+      <div class="breaking-indicators" id="breaking-indicators"></div>
+    </section>
+
+    <!-- Main news content grid, initially hidden until loading is complete -->
+    <div class="main-content" id="main-content" style="display:none;">
+      <!-- Pagination bar for the main news grid (top) -->
+      <div class="pagination-bar">
+        <div id="pagination-top"></div>
+      </div>
+      <!-- Grid container for news cards -->
+      <section class="news-grid" id="news-grid">
+        <!-- News cards will be dynamically inserted here by main.js -->
+      </section>
+    </div>
+  </main>
+
+  <!-- Footer section of the website -->
+  <footer class="footer">
+    <div class="footer-content">
+      <!-- Theme switcher (light/dark mode toggle) -->
+      <div class="theme-switcher">
+        <label class="switch">
+          <input type="checkbox" id="theme-toggle">
+          <span class="slider"></span>
+        </label>
+        <span id="theme-label">Light</span>
+        <!-- Color select, currently disabled as per previous instructions -->
+        <label id="color-label">Color:
+          <select id="color-select" disabled></select>
+        </label>
+      </div>
+      <div class="footer-text">
+        <p id="app-footer-name">&copy; 2025 Classic News. All rights reserved.</p>
+        <p><a href="#" class="footer-link">Privacy Policy</a> | <a href="#" class="footer-link">Terms of Service</a></p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Cookie Consent Banner -->
+  <div id="cookie-consent-banner" class="cookie-consent-banner">
+    <p>This website uses cookies to ensure you get the best experience. By continuing to use this site, you agree to our <a href="#" class="cookie-link">Privacy Policy</a>.</p>
+    <button id="accept-cookies-btn" class="accept-cookies-btn">Accept</button>
+  </div>
+
+  <!-- Link to the main JavaScript file -->
+  <script src="../js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "appName": "Classic News",
+  "baseCategories": [
+    "Politics", "Science", "Health", "Sports", "India", "World",
+    "Business", "Tech", "Travel", "Art", "Environment", "Education",
+    "Food", "Fashion", "Automotive", "Space", "Culture", "Lifestyle", "Gaming"
+  ],
+  "weatherApi": {
+    "name": "WeatherAPI.com",
+    "key": "d646d3a533494921a2f101225252707",
+    "baseUrl": "https://api.weatherapi.com/v1/current.json",
+    "websiteUrl": "https://www.weatherapi.com/"
+  }
+}

@@ -1,0 +1,961 @@
+/* Root variables for theme colors */
+:root {
+  --primary: #2a5298; /* Default Light Mode Primary */
+  --primary-gradient: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
+  --background: #f0f2f5;
+  --text: #222;
+  --card-bg: #fff;
+  --shadow-color: rgba(0,0,0,0.1);
+  --hover-shadow-color: rgba(0,0,0,0.18);
+  --selected-shadow-color: rgba(244,67,54,0.18);
+  --red-500: #f44336; /* Accent color */
+}
+
+/* Dark mode theme variables */
+[data-theme="dark"] {
+  --primary: #7ecbff; /* Dark Mode Primary */
+  --primary-gradient: linear-gradient(90deg, #0f2027 0%, #2c5364 100%);
+  --background: #181c22;
+  --text: #f5f5f5;
+  --card-bg: #23272f;
+  --shadow-color: rgba(0,0,0,0.3);
+  --hover-shadow-color: rgba(0,0,0,0.4);
+  --selected-shadow-color: rgba(244,67,54,0.3);
+}
+
+/* Base body styles */
+body {
+  font-family: 'Inter', sans-serif; /* Using Inter font with sans-serif fallback */
+  background: var(--background);
+  color: var(--text);
+  transition: background 0.3s, color 0.3s;
+  margin: 0;
+  padding: 0;
+}
+
+/* Container for main content to control width and centering */
+.container {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Header section styling */
+.header {
+  background: var(--primary-gradient);
+  color: #fff;
+  padding: 1rem 0;
+  box-shadow: 0 4px 10px var(--shadow-color);
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  display: flex; /* Use flexbox for header content */
+  flex-direction: column; /* Stack title and categories */
+  align-items: center; /* Center items horizontally */
+  gap: 1rem; /* Space between title and categories */
+}
+
+/* Inner flex container within the header */
+.header-flex {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap; /* Allow wrapping on smaller screens */
+  padding: 0 1rem; /* Add padding to the inner flex container */
+}
+
+/* Header title styling */
+.header h1 {
+  margin: 0;
+  font-size: 2.2rem;
+  font-weight: 700;
+  flex-shrink: 0; /* Prevent shrinking */
+}
+
+/* Header right section for category button and dropdown */
+.header-right-section {
+  position: relative; /* Essential for dropdown positioning */
+  display: flex;
+  align-items: center;
+  z-index: 100; /* Ensure it's above other content */
+}
+
+/* Header categories wrapper (for horizontal scrolling) */
+.header-categories-wrapper {
+  width: 100%; /* Take full width */
+  overflow-x: auto; /* Allow horizontal scrolling for categories */
+  padding-bottom: 0.5rem; /* Space for scrollbar */
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: var(--primary) #eee; /* Firefox */
+}
+/* Webkit scrollbar styles */
+.header-categories-wrapper::-webkit-scrollbar {
+  height: 8px;
+}
+.header-categories-wrapper::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+.header-categories-wrapper::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 10px;
+}
+.header-categories-wrapper::-webkit-scrollbar-thumb:hover {
+  background: var(--red-500);
+}
+
+
+/* Header categories layout */
+.header-categories {
+  display: flex;
+  gap: 1rem; /* Space between category tiles */
+  padding: 0.5rem 0; /* Vertical padding for categories */
+  justify-content: center; /* Center categories when they don't fill the width */
+  flex-wrap: nowrap; /* Prevent wrapping in the header */
+}
+
+/* Hide the original categories section header and toggle */
+#categories-section {
+  display: none;
+}
+
+
+/* Loader animation styling */
+#loader {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--background);
+  opacity: 0.98;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: var(--text);
+  transition: opacity 0.5s ease-out;
+}
+
+.spinner {
+  border: 4px solid var(--primary);
+  border-top: 4px solid var(--red-500);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Container for search bar and weather widget */
+.search-and-weather-container {
+  display: flex;
+  justify-content: center; /* Center content horizontally */
+  align-items: center; /* Align items vertically */
+  flex-wrap: wrap; /* Allow wrapping on smaller screens */
+  gap: 1.5rem; /* Space between search bar and weather widget */
+  margin: 1.5rem 0;
+}
+
+/* Search Bar styling */
+.search-bar {
+  flex-grow: 1; /* Allows search bar to take available space */
+  max-width: 600px; /* Max width for search bar */
+  display: flex; /* Ensure input fills its container */
+}
+#news-search {
+  width: 100%; /* Make search input fill its parent */
+  padding: 0.8rem 1.2rem;
+  font-size: 1.1rem;
+  border: 2px solid var(--primary);
+  border-radius: 10px;
+  outline: none;
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  background-color: var(--card-bg);
+  color: var(--text);
+}
+#news-search:focus {
+  border-color: var(--red-500);
+  box-shadow: 0 0 10px rgba(244,67,54,0.3);
+}
+
+/* Weather Widget Styling */
+.weather-widget {
+  background: var(--card-bg);
+  border: 1px solid var(--primary);
+  border-radius: 10px;
+  padding: 0.8rem 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 4px 15px var(--shadow-color);
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  flex-shrink: 0; /* Prevent shrinking on smaller screens */
+}
+
+.weather-widget:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px var(--hover-shadow-color);
+}
+
+.weather-icon {
+  font-size: 2.5rem; /* Large icon size */
+  line-height: 1; /* Ensure icon doesn't add extra space */
+}
+
+.weather-info {
+  display: flex;
+  flex-direction: column;
+  color: var(--text);
+}
+
+.weather-location {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.weather-temperature {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-top: 0.2rem;
+}
+
+.weather-description {
+  font-size: 0.9rem;
+  text-transform: capitalize;
+  margin-top: 0.2rem;
+  color: #666; /* Slightly muted color */
+}
+
+
+/* Current Category Button - adjustments for better appearance */
+.current-category-button {
+  background: rgba(255, 255, 255, 0.15); /* Slightly more opaque for better contrast */
+  color: white;
+  padding: 0.6rem 1rem; /* Adjust padding as needed */
+  border: none;
+  border-radius: 8px; /* Consistent rounded corners */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+}
+
+.current-category-button:hover {
+  background: rgba(255, 255, 255, 0.25); /* More visible hover state */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Enhanced shadow on hover */
+}
+
+/* Category Toggle Arrow - smoother rotation */
+#current-category-toggle {
+  margin-left: 0.5rem; /* Space between text and arrow */
+  transform: rotate(0deg); /* Initial state */
+  transition: transform 0.3s ease; /* Smoother transition */
+}
+
+#current-category-toggle.rotated {
+  transform: rotate(180deg); /* Rotated state when dropdown is open */
+}
+
+/* Categories Dropdown container styling */
+.header-categories-dropdown {
+  position: absolute;
+  top: 100%; /* Position directly below the button */
+  right: 0; /* Align to the right of the button */
+  width: 300px; /* Adjust width as needed for content */
+  background: var(--card-bg); /* Use card background for dropdown */
+  border-radius: 12px;
+  box-shadow: 0 8px 25px var(--shadow-color); /* Prominent shadow */
+  overflow: hidden; /* Hide scrollbar initially, for smooth animation */
+  max-height: 0; /* Hidden state, collapsed */
+  opacity: 0; /* Hidden state, invisible */
+  transition: max-height 0.4s ease-out, opacity 0.4s ease-out; /* Smooth slide and fade */
+  z-index: 99; /* Below the button, but above other page content */
+  transform-origin: top; /* Animation origin from the top */
+}
+
+.header-categories-dropdown.open {
+  max-height: 500px; /* Sufficient height to show all content (adjust if more categories are added) */
+  opacity: 1; /* Fully visible */
+  padding: 1rem; /* Add padding inside the open dropdown */
+  transition: max-height 0.5s ease-in, opacity 0.5s ease-in; /* Faster ease-in when opening */
+  overflow-y: auto; /* Allow scrolling if content exceeds max-height */
+}
+
+/* Inner categories layout within the dropdown using CSS Grid */
+.categories-tiles.header-categories {
+  display: grid; /* Use grid for better layout of tiles */
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); /* Adjust minmax for tile size */
+  gap: 0.8rem; /* Space between tiles */
+  padding: 0; /* Remove default padding as it's now on the parent */
+  justify-items: center; /* Center items within their grid cells */
+}
+
+/* Category tile 3D effect styling */
+.category-card-3d {
+  position: relative;
+  width: 90px;
+  height: 65px;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px var(--shadow-color);
+  cursor: pointer;
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.category-card-3d:hover {
+  transform: scale(1.08); /* Slightly more pronounced lift on hover */
+  box-shadow: 0 3px 10px var(--hover-shadow-color);
+}
+
+.category-card-3d .inner-card {
+  width: 100%;
+  height: 100%;
+  background: var(--primary-gradient); /* Keep gradient for individual tiles */
+  color: white;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.3rem;
+  font-weight: 600;
+  font-size: 0.75rem; /* Smaller font for category name in dropdown */
+  transition: transform 0.2s ease-out, border 0.2s ease-out, box-shadow 0.2s ease-out;
+  border: 1px solid transparent; /* Lighter border for inner card */
+}
+
+/* Styles for selected category tile */
+.category-card-3d.selected .inner-card {
+  border-color: var(--red-500);
+  box-shadow: 0 0 0 2px var(--red-500); /* Smaller, more subtle glow for selected */
+  animation: pulse-selection 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+/* Category tile icon styling */
+.category-card-3d .inner-card span:first-child {
+  font-size: 1.5rem; /* Adjust icon size */
+  margin-bottom: 0.1rem;
+}
+
+/* Checkmark SVG styling */
+.category-card-3d svg {
+  position: absolute;
+  top: 0.15rem;
+  right: 0.15rem;
+  width: 1rem; /* Even smaller checkmark */
+  height: 1rem;
+  color: white;
+  z-index: 1;
+}
+
+/* Dark theme specific styles for selected category tile */
+[data-theme="dark"] .category-card-3d.selected .inner-card {
+  background: white !important;
+  color: var(--text) !important;
+  border-color: var(--red-500);
+}
+[data-theme="dark"] .category-card-3d.selected svg {
+  color: var(--primary) !important;
+}
+
+/* Loader animation styling */
+#loader {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--background);
+  opacity: 0.98;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: var(--text);
+  transition: opacity 0.5s ease-out;
+}
+
+.spinner {
+  border: 4px solid var(--primary);
+  border-top: 4px solid var(--red-500);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Breaking News Slider styling */
+.featured-news {
+  position: relative;
+  margin: 2rem 0;
+  background: var(--card-bg);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 20px var(--shadow-color);
+  min-height: 150px;
+  display: flex;
+  align-items: center;
+  padding: 1.5rem;
+}
+
+.breaking-news-content {
+  position: relative;
+  overflow: hidden;
+  min-height: 120px;
+  width: 100%;
+}
+
+.breaking-news_slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  transition: transform 0.5s ease, opacity 0.5s ease;
+  text-decoration: none;
+  color: inherit;
+}
+
+.slide-enter {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+.breaking-news_slide:not(.slide-enter):not(.slide-exit) {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.slide-exit {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+.breaking-news-img {
+  width: 110px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-right: 1.5rem;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.breaking-news-info {
+  flex: 1;
+  padding: 0;
+  text-align: left;
+}
+
+.breaking-news-info h2 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.breaking-news-info p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+/* Styling for the combined date and location in breaking news */
+.breaking-news-info .news-meta-info {
+  display: flex;
+  align-items: center;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+  color: var(--primary); /* Blue color for the entire meta info */
+  font-weight: 500;
+}
+
+.breaking-news-info .news-meta-info .news-date-text {
+  font-weight: 600;
+  color: inherit;
+}
+
+.breaking-news-info .news-meta-info .news-location-text {
+  font-style: italic;
+  color: inherit;
+  margin-left: 0.5rem;
+}
+
+.breaking-news-info .news-meta-info .news-meta-separator {
+  margin: 0 0.25rem;
+  color: inherit;
+}
+
+/* Arrows and indicators for breaking news slider */
+.breaking-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: var(--primary);
+  color: #fff;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  cursor: pointer;
+  z-index: 10;
+  opacity: 0.9;
+  transition: background 0.2s ease-in-out, transform 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.breaking-arrow.left { left: 1rem; }
+.breaking-arrow.right { right: 1rem; }
+
+.breaking-arrow:hover {
+  background: var(--red-500);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.breaking-indicators {
+  position: absolute;
+  bottom: 0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.6rem;
+}
+
+.breaking-indicator-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #bbb;
+  transition: background 0.3s ease-in-out;
+  cursor: pointer;
+}
+.breaking-indicator-dot.active {
+  background: var(--primary);
+  box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.4);
+}
+
+/* Main Content and Grid */
+.main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.news-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  align-items: stretch;
+}
+
+/* Specific for 3 columns on larger screens */
+@media (min-width: 1024px) {
+  .news-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Individual news card styling */
+.news-card {
+  background: var(--card-bg);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px var(--shadow-color);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.news-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px var(--hover-shadow-color);
+}
+
+.news-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  display: block;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.news-card h3 {
+  margin: 1rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.news-card p.news-summary-justify {
+  text-align: justify; /* Justify the summary text */
+  margin: 0 1rem 1rem;
+  font-size: 0.95rem;
+  color: var(--text);
+  flex-grow: 1;
+}
+
+/* Styling for the combined date and location in news cards */
+.news-card .news-meta-info {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin: 0.5rem 1rem 0.5rem 1rem;
+  font-size: 0.85rem;
+  color: var(--primary); /* Blue color for the entire meta info */
+  font-weight: 500;
+}
+
+.news-card .news-meta-info .news-date-text {
+  font-weight: 600;
+  color: inherit;
+}
+
+.news-card .news-meta-info .news-location-text {
+  font-style: italic;
+  color: inherit;
+  margin-left: 0.5rem;
+}
+
+.news-card .news-meta-info .news-meta-separator {
+  margin: 0 0.25rem;
+  color: inherit;
+}
+
+.read-more-btn {
+  display: inline-block;
+  margin: 1rem;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out, transform 0.1s ease-in-out;
+  text-decoration: none;
+  align-self: flex-end;
+  opacity: 0;
+}
+
+.news-card:hover .read-more-btn {
+  opacity: 1;
+  background: var(--red-500);
+  transform: translateY(-3px);
+}
+.news-card .read-more-btn:active {
+  transform: translateY(0);
+}
+
+/* Pagination styling */
+.pagination-bar {
+  width: 100%;
+  min-height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 2rem;
+  box-sizing: border-box;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.pagination-btn,
+.pagination-arrow {
+  background: var(--card-bg);
+  border: 1px solid var(--primary);
+  color: var(--primary);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  min-width: 40px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.pagination-btn.active,
+.pagination-btn:hover,
+.pagination-arrow:hover {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(42, 82, 152, 0.3);
+}
+.pagination-btn.active {
+    cursor: default;
+}
+.pagination-btn:disabled,
+.pagination-arrow:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.pagination-info {
+  margin-left: 1rem;
+  font-size: 1rem;
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* Footer styling */
+.footer {
+  text-align: center;
+  padding: 1.5rem 0;
+  background: var(--primary-gradient);
+  color: #fff;
+  margin-top: 3rem;
+  box-shadow: 0 -4px 10px var(--shadow-color);
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+.footer-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.footer-text {
+  text-align: center;
+}
+
+.footer-text p {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+}
+
+.footer-link {
+  color: #fff;
+  text-decoration: underline;
+  transition: color 0.2s ease-in-out;
+}
+
+.footer-link:hover {
+  color: var(--red-500);
+}
+
+@media (min-width: 768px) {
+  .footer-content {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
+
+/* Theme switcher styling */
+.theme-switcher {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.theme-switcher label {
+  font-size: 0.95rem;
+  color: #fff;
+}
+
+.theme-switcher select {
+  margin-left: 0.5rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.5);
+  background: rgba(0,0,0,0.2);
+  color: #fff;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* Toggle Switch styling */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 24px;
+  margin-right: 0.5rem;
+}
+.switch input { display: none; }
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 24px;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px; width: 18px;
+  left: 3px; bottom: 3px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+input:checked + .slider {
+  background-color: var(--primary);
+}
+input:checked + .slider:before {
+  transform: translateX(24px);
+}
+
+/* Cookie Consent Banner */
+.cookie-consent-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.85);
+  color: white;
+  padding: 1rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  z-index: 1000;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+  transform: translateY(100%); /* Start off-screen */
+  transition: transform 0.5s ease-out;
+}
+
+.cookie-consent-banner.show {
+  transform: translateY(0); /* Slide into view */
+}
+
+.cookie-consent-banner p {
+  margin: 0;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.cookie-consent-banner .cookie-link {
+  color: #87CEEB; /* Light blue for links */
+  text-decoration: underline;
+}
+
+.cookie-consent-banner .cookie-link:hover {
+  color: #ADD8E6;
+}
+
+.accept-cookies-btn {
+  background-color: #5cb85c; /* Green accept button */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 0.6rem 1.2rem;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.accept-cookies-btn:hover {
+  background-color: #4cae4c;
+}
+
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+  .header-flex {
+    flex-direction: column;
+    text-align: center;
+  }
+  .header nav {
+    margin-top: 1rem;
+  }
+  .header nav a {
+    margin: 0 0.5rem;
+  }
+  .search-and-weather-container {
+    flex-direction: column; /* Stack search and weather vertically */
+    gap: 1rem;
+  }
+  .search-bar {
+    width: 95%; /* Make search bar wider on small screens */
+    max-width: none; /* Remove max-width constraint */
+  }
+  .weather-widget {
+    width: 95%; /* Make weather widget wider on small screens */
+    justify-content: center; /* Center content within the widget */
+  }
+  .featured-news {
+    padding: 1rem;
+  }
+  .breaking-news_slide {
+    flex-direction: column;
+    text-align: center;
+  }
+  .breaking-news-img {
+    margin-right: 0;
+    margin-bottom: 1rem;
+  }
+  .breaking-arrow.left { left: 0.5rem; }
+  .breaking-arrow.right { right: 0.5rem; }
+  .breaking-arrow {
+    padding: 0.5rem;
+    font-size: 1.2rem;
+    width: 30px;
+    height: 30px;
+  }
+  .breaking-indicators {
+    bottom: 0.5rem;
+  }
+  .news-grid {
+    grid-template-columns: 1fr;
+  }
+  .header-right-section {
+    width: 100%; /* Take full width on small screens */
+    justify-content: center; /* Center the button */
+    margin-top: 1rem; /* Add space from title */
+  }
+  .header-categories-dropdown {
+    width: 90%; /* Take more width on small screens */
+    left: 5%; /* Center it horizontally */
+    right: 5%;
+    transform: translateX(0); /* Reset any horizontal transforms */
+  }
+  .cookie-consent-banner {
+    padding: 0.8rem 1rem;
+  }
+}
