@@ -375,37 +375,6 @@ body {
   color: var(--primary) !important;
 }
 
-/* Loader animation styling */
-#loader {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: var(--background);
-  opacity: 0.98;
-  z-index: 9999;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-  color: var(--text);
-  transition: opacity 0.5s ease-out;
-}
-
-.spinner {
-  border: 4px solid var(--primary);
-  border-top: 4px solid var(--red-500);
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1s linear infinite;
-  margin-bottom: 1rem;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
 /* Breaking News Slider styling */
 .featured-news {
   position: relative;
@@ -468,6 +437,8 @@ body {
 .breaking-news-info {
   flex: 1;
   padding: 0;
+  padding-left: 1cm;
+  padding-right: 1cm;
   text-align: left;
 }
 
@@ -609,8 +580,16 @@ body {
   border-bottom: 1px solid rgba(0,0,0,0.05);
 }
 
+.card-content-wrapper {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
 .news-card h3 {
-  margin: 1rem;
+  margin: 0;
+  margin-bottom: 0.5rem;
   font-size: 1.25rem;
   font-weight: 700;
   color: var(--text);
@@ -618,7 +597,8 @@ body {
 
 .news-card p.news-summary-justify {
   text-align: justify; /* Justify the summary text */
-  margin: 0 1rem 1rem;
+  margin: 0;
+  margin-bottom: 1rem;
   font-size: 0.95rem;
   color: var(--text);
   flex-grow: 1;
@@ -626,10 +606,7 @@ body {
 
 /* Styling for the combined date and location in news cards */
 .news-card .news-meta-info {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  margin: 0.5rem 1rem 0.5rem 1rem;
+  margin-bottom: 0.5rem;
   font-size: 0.85rem;
   color: var(--primary); /* Blue color for the entire meta info */
   font-weight: 500;
@@ -649,32 +626,6 @@ body {
 .news-card .news-meta-info .news-meta-separator {
   margin: 0 0.25rem;
   color: inherit;
-}
-
-.read-more-btn {
-  display: inline-block;
-  margin: 1rem;
-  background: var(--primary);
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 0.6rem 1.2rem;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s ease-in-out, transform 0.1s ease-in-out;
-  text-decoration: none;
-  align-self: flex-end;
-  opacity: 0;
-}
-
-.news-card:hover .read-more-btn {
-  opacity: 1;
-  background: var(--red-500);
-  transform: translateY(-3px);
-}
-.news-card .read-more-btn:active {
-  transform: translateY(0);
 }
 
 /* Pagination styling */
@@ -957,5 +908,125 @@ input:checked + .slider:before {
   }
   .cookie-consent-banner {
     padding: 0.8rem 1rem;
+  }
+}
+
+/* --- CORRECTED STYLES FOR BUTTONS AND MODAL --- */
+
+.news-card-actions {
+    display: flex;
+    justify-content: space-between; /* This is the key change */
+    align-items: center;
+    margin-top: auto; /* Pushes this container to the bottom */
+    padding-top: 1rem; /* Adds space above the buttons */
+}
+
+/* Base styles for BOTH buttons */
+.read-more-btn,
+.summarize-btn {
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  text-decoration: none;
+  opacity: 0; /* Buttons are hidden by default */
+  transform: translateY(5px); /* Start slightly lower for hover effect */
+}
+
+/* Show buttons when the parent card is hovered */
+.news-card:hover .read-more-btn,
+.news-card:hover .summarize-btn {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Specific style for the "Read More" button */
+.read-more-btn {
+  background: var(--primary);
+  color: #fff;
+}
+
+.read-more-btn:hover {
+  background: var(--red-500);
+  transform: translateY(-2px); /* Add a slight lift on hover */
+}
+
+/* Specific style for the "Summarize" button */
+.summarize-btn {
+  background-color: #ff9800;
+  color: white;
+}
+
+.summarize-btn:hover {
+  background-color: #f57c00;
+  transform: translateY(-2px); /* Add a slight lift on hover */
+}
+
+.summary-modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1001; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgba(0,0,0,0.6); /* Black w/ opacity */
+  justify-content: center;
+  align-items: center;
+}
+
+.summary-modal-content {
+  background-color: var(--card-bg);
+  color: var(--text);
+  margin: auto;
+  padding: 25px 30px;
+  border: 1px solid #888;
+  width: 90%;
+  max-width: 700px;
+  border-radius: 12px;
+  box-shadow: 0 5px 25px rgba(0,0,0,0.3);
+  animation: slide-down 0.4s ease-out;
+}
+
+#summary-text-container {
+    max-height: 60vh; /* Set a max height */
+    overflow-y: auto; /* Add scroll for long summaries */
+    margin-top: 15px;
+    padding-right: 10px; /* Space for scrollbar */
+}
+
+#summary-text {
+    line-height: 1.7;
+    font-size: 1.05rem;
+    text-align: justify;
+}
+
+.summary-close-btn {
+  color: #aaa;
+  float: right;
+  font-size: 32px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.summary-close-btn:hover,
+.summary-close-btn:focus {
+  color: var(--red-500);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+@keyframes slide-down {
+  from {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
   }
 }

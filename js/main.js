@@ -1,4 +1,7 @@
 window.addEventListener('DOMContentLoaded', async () => {
+  // --- IMPORTANT: ADD YOUR GEMINI API KEY HERE ---
+  const GEMINI_API_KEY = "AIzaSyAru12IejgvmAhyW_G_ZtMnZjmShGeoq80"; 
+
   // --- Configuration Variables (will be loaded from config.json) ---
   let appConfig = {
     appName: "Classic News",
@@ -17,12 +20,11 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   // --- Load Configuration from config.json ---
   try {
-    const response = await fetch('config.json');
+    const response = await fetch('../config.json'); // Adjusted path relative to HTML file
     if (!response.ok) {
       console.warn('config.json not found or failed to load. Using default configuration.');
     } else {
       const customConfig = await response.json();
-      // Merge default config with custom config
       appConfig = {
         ...appConfig,
         ...customConfig,
@@ -46,7 +48,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   // Hide the loader after a delay and show the main content
   setTimeout(() => {
     loader.style.display = 'none';
-    document.getElementById('main-content').style.display = '';
+    document.getElementById('main-content').style.display = 'flex';
   }, 1200); // 1.2 second delay
 
   // Categories: Breaking News, then others, then All (from config)
@@ -56,6 +58,76 @@ window.addEventListener('DOMContentLoaded', async () => {
   let allNews = []; // Array to hold all fetched news articles
   let currentPage = 1; // Current page for pagination
   const newsPerPage = 9; // Number of news cards to display per page
+
+  // --- Summarization and Modal Elements ---
+  const summaryModal = document.getElementById('summary-modal');
+  const summaryText = document.getElementById('summary-text');
+  const summaryCloseBtn = document.querySelector('.summary-close-btn');
+
+  function showModal() { summaryModal.style.display = 'flex'; }
+  function hideModal() { summaryModal.style.display = 'none'; }
+  summaryCloseBtn.onclick = hideModal;
+  window.onclick = (event) => { if (event.target == summaryModal) hideModal(); };
+
+  // --- Summarization Logic using Gemini API (FIXED) ---
+  async function getSummary(articleUrl) {
+    if (GEMINI_API_KEY === "YOUR_GEMINI_API_KEY") {
+        summaryText.textContent = "Error: Gemini API Key is not set. Please add your key to the main.js file.";
+        showModal();
+        return;
+    }
+
+    summaryText.textContent = 'Generating summary, please wait... This may take a moment.';
+    showModal();
+
+    try {
+      // 1. Fetch the article's HTML content
+      const articleResponse = await fetch(articleUrl);
+      if (!articleResponse.ok) throw new Error(`Failed to fetch article HTML (status: ${articleResponse.status})`);
+      const articleHtml = await articleResponse.text();
+
+      // 2. Parse the HTML and extract text content
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(articleHtml, 'text/html');
+      const container = doc.querySelector('.container');
+      if (!container) throw new Error("Could not find '.container' in the article HTML.");
+      
+      let articleText = "";
+      container.querySelectorAll('p').forEach(p => {
+        articleText += p.textContent + "\n";
+      });
+      
+      if (!articleText.trim()) throw new Error("No paragraph text found in the article.");
+
+      // 3. Call the Gemini API with the corrected model name
+      const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
+      const prompt = `You are an expert news summarizer. Provide a concise, easy-to-understand summary of the following news article content. Focus on the key points and present them clearly. Article Content: "${articleText}"`;
+      
+      const geminiResponse = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+              contents: [{ parts: [{ text: prompt }] }]
+          })
+      });
+
+      if (!geminiResponse.ok) {
+          const errorData = await geminiResponse.json();
+          throw new Error(`Gemini API error: ${errorData.error.message || 'Unknown error'}`);
+      }
+
+      const geminiData = await geminiResponse.json();
+      if (!geminiData.candidates || !geminiData.candidates[0].content.parts[0].text) {
+          throw new Error("Invalid response structure from Gemini API.");
+      }
+      const summary = geminiData.candidates[0].content.parts[0].text;
+      summaryText.textContent = summary;
+
+    } catch (error) {
+      console.error('Error in getSummary:', error);
+      summaryText.textContent = `Failed to get summary: ${error.message}`;
+    }
+  }
 
   // --- Cookie Consent Elements ---
   const cookieConsentBanner = document.getElementById('cookie-consent-banner');
@@ -146,12 +218,12 @@ window.addEventListener('DOMContentLoaded', async () => {
       case 'Travel': return '✈️';
       case 'Art': return '🎨';
       case 'Environment': return '🌳';
-      case 'Education': return '📚';
+      case 'Education': return '�';
       case 'Food': return '🍔';
       case 'Fashion': return '👗';
       case 'Automotive': return '🚗';
       case 'Space': return '🚀';
-      case 'Culture': return '�';
+      case 'Culture': return '🎭';
       case 'Lifestyle': return '🧘';
       case 'Gaming': return '🎮';
       case 'Breaking News': return '⚡';
@@ -284,46 +356,24 @@ window.addEventListener('DOMContentLoaded', async () => {
     tilesContainer.innerHTML = ''; // Clear existing tiles
     categories.forEach(category => {
       const tileWrapper = document.createElement('div');
-      tileWrapper.className = `relative category-card-3d flex-shrink-0 w-36 h-28 rounded-xl shadow-md
-        flex flex-col items-center justify-center font-semibold text-base cursor-pointer transition-all duration-300 ease-in-out
-        ${selectedCategory === category ? 'selected' : ''}
-      `;
+      tileWrapper.className = `category-card-3d ${selectedCategory === category ? 'selected' : ''}`;
 
       const innerCard = document.createElement('div');
-      innerCard.className = `inner-card w-full h-full flex flex-col items-center justify-center p-2 rounded-xl
-        bg-gradient-to-br from-blue-600 to-blue-800 text-white
-      `;
+      innerCard.className = 'inner-card';
 
       if (selectedCategory === category) {
         const checkmarkSvg = `
-          <svg class="absolute top-1 right-1 w-5 h-5 text-white animate-fade-in" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 10 001.414 0l4-4z" clipRule="evenodd"></path>
+          <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
           </svg>
         `;
         innerCard.innerHTML += checkmarkSvg;
       }
 
-      innerCard.innerHTML += `<span class="text-3xl mb-1">${getCategoryIcon(category)}</span>`;
-      innerCard.innerHTML += `<span class="text-sm text-center px-1">${category}</span>`;
+      innerCard.innerHTML += `<span>${getCategoryIcon(category)}</span>`;
+      innerCard.innerHTML += `<span>${category}</span>`;
 
       tileWrapper.appendChild(innerCard);
-
-      tileWrapper.addEventListener('mousemove', (e) => {
-        const card = e.currentTarget;
-        const rect = card.getBoundingClientRect();
-        const x = e.clientX - (rect.left + rect.width / 2);
-        const y = e.clientY - (rect.top + rect.height / 2);
-        const rotateX = -y / 10;
-        const rotateY = x / 10;
-        card.style.setProperty('--rotateX', `${rotateX}deg`);
-        card.style.setProperty('--rotateY', `${rotateY}deg`);
-      });
-
-      tileWrapper.addEventListener('mouseleave', (e) => {
-        const card = e.currentTarget;
-        card.style.setProperty('--rotateX', '0deg');
-        card.style.setProperty('--Y', '0deg');
-      });
 
       tileWrapper.addEventListener('click', () => {
         selectedCategory = category;
@@ -340,64 +390,74 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   // --- Pagination Rendering ---
   function renderPagination(totalPages) {
-    function createPaginationElement() {
-      const pagination = document.createElement('div');
-      pagination.className = 'pagination';
+    const pagTop = document.getElementById('pagination-top');
+    pagTop.innerHTML = ''; // Clear previous pagination
+    if (totalPages <= 1) return;
 
-      const leftArrow = document.createElement('button');
-      leftArrow.className = 'pagination-arrow';
-      leftArrow.innerHTML = '&#8592;';
-      leftArrow.disabled = currentPage === 1;
-      leftArrow.onclick = () => {
-        if (currentPage > 1) {
-          currentPage--;
-          renderNews();
-          createPaginationElement();
-        }
-      };
-      pagination.appendChild(leftArrow);
+    const pagination = document.createElement('div');
+    pagination.className = 'pagination';
 
-      let start = Math.max(1, currentPage - 2);
-      let end = Math.min(totalPages, currentPage + 2);
-      if (currentPage <= 3) end = Math.min(5, totalPages);
-      if (currentPage >= totalPages - 2) start = Math.max(1, totalPages - 4);
-
-      for (let i = start; i <= end; i++) {
-        const btn = document.createElement('button');
-        btn.className = 'pagination-btn' + (i === currentPage ? ' active' : '');
-        btn.textContent = i;
-        btn.addEventListener('click', () => {
-          currentPage = i;
-          renderNews();
-          createPaginationElement();
-        });
-        pagination.appendChild(btn);
+    const leftArrow = document.createElement('button');
+    leftArrow.className = 'pagination-arrow';
+    leftArrow.innerHTML = '&#8592;';
+    leftArrow.disabled = currentPage === 1;
+    leftArrow.onclick = () => {
+      if (currentPage > 1) {
+        currentPage--;
+        renderNews();
       }
+    };
+    pagination.appendChild(leftArrow);
 
-      const rightArrow = document.createElement('button');
-      rightArrow.className = 'pagination-arrow';
-      rightArrow.innerHTML = '&#8594;';
-      rightArrow.disabled = currentPage === totalPages;
-      rightArrow.onclick = () => {
-        if (currentPage < totalPages) {
-          currentPage++;
-          renderNews();
-          createPaginationElement();
-        }
-      };
-      pagination.appendChild(rightArrow);
+    let start = Math.max(1, currentPage - 2);
+    let end = Math.min(totalPages, currentPage + 2);
+    if (currentPage <= 3) end = Math.min(5, totalPages);
+    if (currentPage >= totalPages - 2) start = Math.max(1, totalPages - 4);
 
-      const info = document.createElement('span');
-      info.className = 'pagination-info';
-      info.textContent = `Page ${currentPage} of ${totalPages}`;
-      pagination.appendChild(info);
-
-      return pagination;
+    if (start > 1) {
+        const firstBtn = document.createElement('button');
+        firstBtn.className = 'pagination-btn';
+        firstBtn.textContent = 1;
+        firstBtn.onclick = () => { currentPage = 1; renderNews(); };
+        pagination.appendChild(firstBtn);
+        if (start > 2) pagination.insertAdjacentHTML('beforeend', '<span>...</span>');
     }
 
-    const pagTop = document.getElementById('pagination-top');
-    pagTop.innerHTML = '';
-    pagTop.appendChild(createPaginationElement());
+    for (let i = start; i <= end; i++) {
+      const btn = document.createElement('button');
+      btn.className = 'pagination-btn' + (i === currentPage ? ' active' : '');
+      btn.textContent = i;
+      btn.onclick = () => { currentPage = i; renderNews(); };
+      pagination.appendChild(btn);
+    }
+
+    if (end < totalPages) {
+        if (end < totalPages - 1) pagination.insertAdjacentHTML('beforeend', '<span>...</span>');
+        const lastBtn = document.createElement('button');
+        lastBtn.className = 'pagination-btn';
+        lastBtn.textContent = totalPages;
+        lastBtn.onclick = () => { currentPage = totalPages; renderNews(); };
+        pagination.appendChild(lastBtn);
+    }
+
+    const rightArrow = document.createElement('button');
+    rightArrow.className = 'pagination-arrow';
+    rightArrow.innerHTML = '&#8594;';
+    rightArrow.disabled = currentPage === totalPages;
+    rightArrow.onclick = () => {
+      if (currentPage < totalPages) {
+        currentPage++;
+        renderNews();
+      }
+    };
+    pagination.appendChild(rightArrow);
+
+    const info = document.createElement('span');
+    info.className = 'pagination-info';
+    info.textContent = `Page ${currentPage} of ${totalPages}`;
+    pagination.appendChild(info);
+
+    pagTop.appendChild(pagination);
   }
 
   // --- News Card Rendering ---
@@ -405,67 +465,67 @@ window.addEventListener('DOMContentLoaded', async () => {
     const grid = document.getElementById('news-grid');
     grid.innerHTML = '';
     let filtered = allNews;
+    const searchTerm = document.getElementById('news-search').value.trim().toLowerCase();
 
-    if (selectedCategory === 'Breaking News') {
-      filtered = allNews.slice(0, 10);
-    } else if (selectedCategory !== 'All') {
-      filtered = allNews.filter(article =>
-        (article.category && article.category.toLowerCase() === selectedCategory.toLowerCase())
-      );
+    if (selectedCategory !== 'All' && selectedCategory !== 'Breaking News') {
+        filtered = allNews.filter(article => article.category.toLowerCase() === selectedCategory.toLowerCase());
+    } else if (selectedCategory === 'Breaking News') {
+        filtered = allNews.slice(0, 10);
     }
 
     if (searchTerm) {
-      filtered = filtered.filter(article =>
-        (article.title && article.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (article.summary && article.summary.toLowerCase().includes(searchTerm.toLowerCase()))
-      );
+        filtered = filtered.filter(article =>
+            (article.title && article.title.toLowerCase().includes(searchTerm)) ||
+            (article.summary && article.summary.toLowerCase().includes(searchTerm))
+        );
     }
 
     const totalPages = Math.ceil(filtered.length / newsPerPage) || 1;
     const startIdx = (currentPage - 1) * newsPerPage;
-    const endIdx = startIdx + newsPerPage;
-    const pageNews = filtered.slice(startIdx, endIdx);
+    const pageNews = filtered.slice(startIdx, startIdx + newsPerPage);
 
     if (pageNews.length === 0) {
-      grid.innerHTML = '<p class="text-center text-gray-600 dark:text-gray-400 col-span-full">No news found for this category or search term.</p>';
+        grid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;">No news found for this category or search term.</p>';
     } else {
-      pageNews.forEach(article => {
-        const title = highlight(article.title, searchTerm);
-        const summary = highlight(article.summary, searchTerm);
-        
-        const locationDisplay = article.location ? `<span class="news-meta-separator">|</span> <span class="news-location-text">${article.location}</span>` : '';
-        const dateTimeLocationStr = `
-          <div class="news-meta-info">
-            <span class="news-date-text">${article.date ? new Date(article.date).toLocaleDateString() : 'N/A'}</span>
-            ${locationDisplay}
-          </div>
-        `;
-
-        const card = document.createElement('div');
-        card.className = 'news-card';
-        card.innerHTML = `
-          <img src="${article.img}" alt="${article.title}">
-          <div class="p-4 flex-grow flex flex-col">
-            ${dateTimeLocationStr}
-            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">${title}</h3>
-            <p class="news-summary-justify text-gray-700 dark:text-gray-300 text-sm flex-grow">${summary}</p>
-            <a class="read-more-btn mt-4 self-end bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700 transition-colors opacity-0 group-hover:opacity-100"
-              href="News/${encodeURIComponent(article.category)}/${encodeURIComponent(article.uniqueId)}.html" target="_blank" rel="noopener noreferrer">Read More</a>
-          </div>
-        `;
-        grid.appendChild(card);
-
-        // Add event listener to record visited news
-        const readMoreBtn = card.querySelector('.read-more-btn');
-        readMoreBtn.addEventListener('click', () => {
-          if (cookiesAccepted) {
-            addVisitedNewsId(article.uniqueId);
-          } else {
-            console.log("Cookies not accepted. Cannot record visited news.");
-          }
+        pageNews.forEach(article => {
+            const articleUrl = `../News/${encodeURIComponent(article.category)}/${article.uniqueId}.html`;
+            const card = document.createElement('div');
+            card.className = 'news-card';
+            card.innerHTML = `
+                <img src="${article.img}" alt="${article.title}" onerror="this.src='https://placehold.co/600x400/EEE/31343C?text=Image+Not+Found';">
+                <div class="card-content-wrapper">
+                    <div class="news-meta-info">
+                        <span class="news-date-text">${new Date(article.date).toLocaleDateString()}</span>
+                        ${article.location ? `<span class="news-meta-separator">|</span><span class="news-location-text">${article.location}</span>` : ''}
+                    </div>
+                    <h3>${highlight(article.title, searchTerm)}</h3>
+                    <p class="news-summary-justify">${highlight(article.summary, searchTerm)}</p>
+                    <div class="news-card-actions">
+                        <a class="read-more-btn" href="${articleUrl}" target="_blank" rel="noopener noreferrer">Read More</a>
+                        <button class="summarize-btn" data-url="${articleUrl}">✨ Summarize</button>
+                    </div>
+                </div>
+            `;
+            grid.appendChild(card);
+            
+            // Add event listener to record visited news
+            const readMoreBtn = card.querySelector('.read-more-btn');
+            readMoreBtn.addEventListener('click', () => {
+              if (cookiesAccepted) {
+                addVisitedNewsId(article.uniqueId);
+              }
+            });
         });
-      });
     }
+    
+    // Add event listeners to the new summarize buttons
+    grid.querySelectorAll('.summarize-btn').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const url = e.currentTarget.dataset.url;
+            getSummary(url);
+        });
+    });
+    
     renderPagination(totalPages);
   }
 
@@ -477,31 +537,28 @@ window.addEventListener('DOMContentLoaded', async () => {
   function renderBreakingNewsSlider() {
     const container = document.getElementById('breaking-news-content');
     const indicators = document.getElementById('breaking-indicators');
+    if (!breakingNews.length) return;
 
     container.innerHTML = '';
+    indicators.innerHTML = '';
 
     const article = breakingNews[breakingIndex];
     const newSlideLink = document.createElement('a');
-    newSlideLink.href = `News/${encodeURIComponent(article.category)}/${encodeURIComponent(article.uniqueId)}.html`;
+    newSlideLink.href = `../News/${encodeURIComponent(article.category)}/${article.uniqueId}.html`;
     newSlideLink.target = "_blank";
     newSlideLink.rel = "noopener noreferrer";
     newSlideLink.className = 'breaking-news_slide slide-enter';
 
-    // Add event listener to record visited news for slider
     newSlideLink.addEventListener('click', () => {
-      if (cookiesAccepted) {
-        addVisitedNewsId(article.uniqueId);
-      } else {
-        console.log("Cookies not accepted. Cannot record visited news from slider.");
-      }
+      if (cookiesAccepted) addVisitedNewsId(article.uniqueId);
     });
 
     const locationDisplay = article.location ? `<span class="news-meta-separator">|</span> <span class="news-location-text">${article.location}</span>` : '';
     newSlideLink.innerHTML = `
-      <img class="breaking-news-img" src="${article.img}" alt="${article.title}">
+      <img class="breaking-news-img" src="${article.img}" alt="${article.title}" onerror="this.src='https://placehold.co/220x160/EEE/31343C?text=Image';">
       <div class="breaking-news-info">
         <div class="news-meta-info">
-          <span class="news-date-text">${article.date ? new Date(article.date).toLocaleDateString() : 'N/A'}</span>
+          <span class="news-date-text">${new Date(article.date).toLocaleDateString()}</span>
           ${locationDisplay}
         </div>
         <h2>${article.title}</h2>
@@ -510,16 +567,14 @@ window.addEventListener('DOMContentLoaded', async () => {
     `;
     
     container.appendChild(newSlideLink);
-    newSlideLink.offsetWidth;
-    newSlideLink.classList.remove('slide-enter');
+    requestAnimationFrame(() => {
+        newSlideLink.classList.remove('slide-enter');
+    });
 
-    indicators.innerHTML = '';
     breakingNews.forEach((_, idx) => {
       const dot = document.createElement('span');
       dot.className = 'breaking-indicator-dot' + (idx === breakingIndex ? ' active' : '');
-      dot.addEventListener('click', () => {
-        showBreakingNews(idx);
-      });
+      dot.onclick = () => showBreakingNews(idx);
       indicators.appendChild(dot);
     });
   }
@@ -533,29 +588,25 @@ window.addEventListener('DOMContentLoaded', async () => {
   function nextBreakingNews() {
     breakingIndex = (breakingIndex + 1) % breakingNews.length;
     renderBreakingNewsSlider();
-    resetBreakingTimer();
   }
 
   function prevBreakingNews() {
     breakingIndex = (breakingIndex - 1 + breakingNews.length) % breakingNews.length;
     renderBreakingNewsSlider();
-    resetBreakingTimer();
   }
 
   function resetBreakingTimer() {
-    if (breakingTimer) clearTimeout(breakingTimer);
-    breakingTimer = setTimeout(nextBreakingNews, 10000);
+    if (breakingTimer) clearInterval(breakingTimer);
+    breakingTimer = setInterval(nextBreakingNews, 10000);
   }
 
-  document.getElementById('breaking-next').onclick = nextBreakingNews;
-  document.getElementById('breaking-prev').onclick = prevBreakingNews;
+  document.getElementById('breaking-next').onclick = () => { nextBreakingNews(); resetBreakingTimer(); };
+  document.getElementById('breaking-prev').onclick = () => { prevBreakingNews(); resetBreakingTimer(); };
 
   // --- Fetch News Data ---
-  fetch('Data/news.json')
+  fetch('../Data/news.json') // Adjusted path
     .then(response => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       return response.json();
     })
     .then(news => {
@@ -564,15 +615,18 @@ window.addEventListener('DOMContentLoaded', async () => {
         .sort((a, b) => new Date(b.date) - new Date(a.date));
       
       breakingNews = allNews.slice(0, 7);
-      renderBreakingNewsSlider();
-      resetBreakingTimer();
+      if (breakingNews.length > 0) {
+        renderBreakingNewsSlider();
+        resetBreakingTimer();
+      }
+      
       renderTiles();
       renderNews();
       updateCurrentCategoryButton();
     })
     .catch(error => {
       document.getElementById('news-grid').innerHTML = '<p class="text-center text-gray-600 dark:text-gray-400 col-span-full">Failed to load news.</p>';
-      console.error('Error loading news:', error);
+      console.error('Error loading news.json:', error);
     });
 
   // --- Category Button Toggle ---
@@ -604,62 +658,34 @@ window.addEventListener('DOMContentLoaded', async () => {
   function highlight(text, keyword) {
     if (!keyword || !text) return text;
     const regex = new RegExp(`(${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-    return text.replace(regex, '<span class="highlight">$1</span>');
+    return text.replace(regex, '<mark>$1</mark>');
   }
 
   // --- Theme & Color Switcher ---
   const themeToggle = document.getElementById('theme-toggle');
   const themeLabel = document.getElementById('theme-label');
-  const colorSelect = document.getElementById('color-select');
   const root = document.documentElement;
 
-  const primaryLight = "#2a5298";
-  const primaryLightGradient = "linear-gradient(90deg, #1e3c72 0%, #2a5298 100%)";
-  const backgroundLight = "#f0f2f5";
-  const textLight = "#222";
-  const cardBgLight = "#fff";
-
-  const primaryDark = "#7ecbff";
-  const primaryDarkGradient = "linear-gradient(90deg, #0f2027 0%, #2c5364 100%)";
-  const backgroundDark = "#181c22";
-  const textDark = "#f5f5f5";
-  const cardBgDark = "#23272f";
-
-  const accentRed = "#f44336";
-
   function setTheme(isDark) {
-    if (isDark) {
-      root.style.setProperty('--primary', primaryDark);
-      root.style.setProperty('--primary-gradient', primaryDarkGradient);
-      root.style.setProperty('--background', backgroundDark);
-      root.style.setProperty('--text', textDark);
-      root.style.setProperty('--card-bg', cardBgDark);
-      root.style.setProperty('--shadow-color', 'rgba(0,0,0,0.3)');
-      root.style.setProperty('--hover-shadow-color', 'rgba(0,0,0,0.4)');
-      root.style.setProperty('--selected-shadow-color', 'rgba(244,67,54,0.3)');
-    } else {
-      root.style.setProperty('--primary', primaryLight);
-      root.style.setProperty('--primary-gradient', primaryLightGradient);
-      root.style.setProperty('--background', backgroundLight);
-      root.style.setProperty('--text', textLight);
-      root.style.setProperty('--card-bg', cardBgLight);
-      root.style.setProperty('--shadow-color', 'rgba(0,0,0,0.1)');
-      root.style.setProperty('--hover-shadow-color', 'rgba(0,0,0,0.18)');
-      root.style.setProperty('--selected-shadow-color', 'rgba(244,67,54,0.18)');
-    }
-    root.style.setProperty('--red-500', accentRed);
+    root.setAttribute('data-theme', isDark ? 'dark' : 'light');
     themeLabel.textContent = isDark ? 'Dark' : 'Light';
   }
 
   themeToggle.addEventListener('change', e => {
     setTheme(e.target.checked);
+    if (cookiesAccepted) setLocalStorage('theme', e.target.checked ? 'dark' : 'light');
   });
 
-  colorSelect.disabled = true;
-
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  themeToggle.checked = prefersDark;
-  setTheme(prefersDark);
+  const savedTheme = getLocalStorage('theme');
+  if (savedTheme) {
+    const isDark = savedTheme === 'dark';
+    themeToggle.checked = isDark;
+    setTheme(isDark);
+  } else {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    themeToggle.checked = prefersDark;
+    setTheme(prefersDark);
+  }
 
   // --- Initialize Cookie Consent ---
   checkCookieConsent();

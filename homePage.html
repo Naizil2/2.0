@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title id="app-title">Classic News</title>
-  <!-- Link to the main stylesheet -->
+  <!-- Link to the external stylesheet -->
   <link rel="stylesheet" href="../css/homePage.css" />
   <!-- Google Fonts for Inter font family -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -112,7 +112,18 @@
     <button id="accept-cookies-btn" class="accept-cookies-btn">Accept</button>
   </div>
 
-  <!-- Link to the main JavaScript file -->
+  <!-- Summary Modal -->
+  <div id="summary-modal" class="summary-modal">
+      <div class="summary-modal-content">
+          <span class="summary-close-btn">&times;</span>
+          <h2>Article Summary</h2>
+          <div id="summary-text-container">
+              <p id="summary-text">Loading...</p>
+          </div>
+      </div>
+  </div>
+
+  <!-- Link to the external JavaScript file -->
   <script src="../js/main.js"></script>
 </body>
 </html>
