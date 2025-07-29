@@ -211,14 +211,14 @@ window.addEventListener('DOMContentLoaded', async () => {
       case 'Science': return '🔬';
       case 'Health': return '❤️';
       case 'Sports': return '🏅';
-      case 'India': return '🇮🇳';
+      case 'India': return '🇮�';
       case 'World': return '🌍';
       case 'Business': return '📈';
       case 'Tech': return '💻';
       case 'Travel': return '✈️';
       case 'Art': return '🎨';
       case 'Environment': return '🌳';
-      case 'Education': return '�';
+      case 'Education': return '📚';
       case 'Food': return '🍔';
       case 'Fashion': return '👗';
       case 'Automotive': return '🚗';
@@ -488,6 +488,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         grid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;">No news found for this category or search term.</p>';
     } else {
         pageNews.forEach(article => {
+            // --- PATH CORRECTION ---
             const articleUrl = `../News/${encodeURIComponent(article.category)}/${article.uniqueId}.html`;
             const card = document.createElement('div');
             card.className = 'news-card';
@@ -543,8 +544,10 @@ window.addEventListener('DOMContentLoaded', async () => {
     indicators.innerHTML = '';
 
     const article = breakingNews[breakingIndex];
+    // --- PATH CORRECTION ---
+    const articleUrl = `../News/${encodeURIComponent(article.category)}/${article.uniqueId}.html`;
     const newSlideLink = document.createElement('a');
-    newSlideLink.href = `../News/${encodeURIComponent(article.category)}/${article.uniqueId}.html`;
+    newSlideLink.href = articleUrl;
     newSlideLink.target = "_blank";
     newSlideLink.rel = "noopener noreferrer";
     newSlideLink.className = 'breaking-news_slide slide-enter';
@@ -604,7 +607,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('breaking-prev').onclick = () => { prevBreakingNews(); resetBreakingTimer(); };
 
   // --- Fetch News Data ---
-  fetch('../Data/news.json') // Adjusted path
+  // --- PATH CORRECTION ---
+  fetch('../Data/news.json') 
     .then(response => {
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       return response.json();

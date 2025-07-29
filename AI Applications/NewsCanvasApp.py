@@ -18,7 +18,7 @@ from PyQt5.QtCore import Qt, QUrl, QMimeData, QBuffer, QIODevice
 # Define the base directory for news HTML files.
 # This path is relative to where the Python script is executed.
 # Assuming the script is in '2.0/AI Applications/', this will save HTML files to '2.0/News/{category}/{unique_id}.html'.
-NEWS_HTML_BASE_DIR = "../News" # Corrected path to be relative to the project root
+NEWS_HTML_BASE_DIR = "../2.0/News" # Corrected path to be relative to the project root
 
 class ImageResizeDialog(QDialog):
     """Dialog to get new dimensions for an image."""
@@ -651,7 +651,7 @@ p {{
 
         # Update the central News.json file
         # This path is relative to where the script is executed, assuming it's in 'AI Applications/'
-        json_path = os.path.join("../Data", "news.json") # Corrected path to be relative to the project root
+        json_path = "Data/news.json" # Corrected path to be relative to the project root
         
         news_entry = {
             "img": img_base64,

@@ -9,6 +9,8 @@
     "name": "WeatherAPI.com",
     "key": "d646d3a533494921a2f101225252707",
     "baseUrl": "https://api.weatherapi.com/v1/current.json",
-    "websiteUrl": "https://www.weatherapi.com/"
+    "websiteUrl": "https://www.weatherapi.com/",
+    "NEWS_HTML_BASE_DIR": "../2.0/News",
+    "json_path": "Data/news.json"
   }
 }
